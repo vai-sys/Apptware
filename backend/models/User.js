@@ -1,3 +1,5 @@
+
+
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema(
@@ -35,10 +37,10 @@ const userSchema = new mongoose.Schema(
     },
     wallet: {
       balance: { type: Number, default: 0 }, 
-      totalInvested: { type: Number, default: 0 }, // Total invested amount
-      totalBorrowed: { type: Number, default: 0 }, // Total borrowed amount
-      totalInterestEarned: { type: Number, default: 0 }, // Interest earned from investments
-      totalInterestPaid: { type: Number, default: 0 }, // Interest paid on loans
+      totalInvested: { type: Number, default: 0 }, 
+      totalBorrowed: { type: Number, default: 0 }, 
+      totalInterestEarned: { type: Number, default: 0 },
+      totalInterestPaid: { type: Number, default: 0 },
       lastTransactionDate: { type: Date },
     },
     contactNumber: {
@@ -53,6 +55,10 @@ const userSchema = new mongoose.Schema(
       postalCode: { type: String },
       country: { type: String },
     },
+    rejectionReason: {
+      type: String,
+      required: false,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -64,8 +70,6 @@ const userSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-
-
 
 const User = mongoose.model('User', userSchema);
 

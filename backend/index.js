@@ -6,6 +6,7 @@ const connectDB = require('./config/db');
 dotenv.config();
 
 const authRoute = require('./routes/authRoute');
+const kycRoute=require('./routes/kycRoute')
 
 const app = express();
 connectDB();
@@ -16,6 +17,7 @@ app.use(express.json());
 const PORT = process.env.PORT || 5000;
 
 app.use('/api/auth', authRoute);
+app.use('/api/kyc',kycRoute);
 
 app.get('/', (req, res) => {
   res.status(200).send('API is running...');
