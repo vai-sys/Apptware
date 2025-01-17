@@ -1,0 +1,45 @@
+# Node.js
+/node_modules/
+/npm-debug.log
+/package-lock.json
+/yarn-error.log
+/yarn.lock
+
+# Environment files
+.env
+
+# Build directories
+/dist
+/build
+/public
+
+# Logs
+/logs
+*.log
+*.log.*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+# Dependency directories
+/.pnp
+.pnp.js
+
+# Next.js build output (if using Next.js in your project)
+/.next
+
+# React Native
+.expo/
+.expo-shared/
+
+# Debugging
+/.vscode/
+
+# Temporary files
+*.swp
+*.swo
