@@ -1,12 +1,19 @@
 const User = require('../models/User');
-
-const submitKYC = async (req, res) => {
-    const { userId, firstName, lastName, dateOfBirth, gender } = req.body;
+const VerifyKYC = async (req, res) => {
+    const {
+      userId,
+      firstName,
+      lastName,
+      dateOfBirth,
+      gender,
+      verificationStatus,
+      rejectionReason,
+    } = req.body;
   
-    if (!userId || !firstName || !lastName || !dateOfBirth || !gender ) {
+    if (!userId || !firstName || !lastName || !dateOfBirth || !gender || !verificationStatus) {
       return res.status(400).json({
         success: false,
-        message: 'Missing required fields for KYC submission',
+        message: 'Missing required fields for KYC submission or verification',
       });
     }
   
@@ -19,91 +26,43 @@ const submitKYC = async (req, res) => {
         });
       }
   
-     
-      user.kycVerified = false;
-      user.profileStatus = 'Pending'; 
-      user.rejectionReason = null;
+      user.kycVerified = verificationStatus === 'Verified';
+      user.profileStatus = verificationStatus === 'Verified' ? 'Active' : 'Suspended';
+  
+      if (verificationStatus === 'Rejected') {
+        user.rejectionReason = rejectionReason || 'Reason not provided';
+      } else {
+        user.rejectionReason = null;
+      }
+  
+      user.updatedAt = new Date();
   
       await user.save();
   
-      return res.status(201).json({
+      return res.status(200).json({
         success: true,
-        message: 'KYC submitted successfully',
+        message: `KYC ${verificationStatus.toLowerCase()} successfully`,
         data: {
           userId,
           firstName,
           lastName,
           dateOfBirth,
           gender,
-          verificationStatus: 'Pending',
-          profileStatus: user.profileStatus, 
+          verificationStatus,
+          rejectionReason: user.rejectionReason,
+          profileStatus: user.profileStatus,
+          verificationDate: new Date(),
         },
       });
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: 'Error submitting KYC',
+        message: 'Error processing KYC',
         error: error.message,
       });
     }
   };
-
   
-
-
-
-
-const verifyKYC = async (req, res) => {
-  const { userId, verificationStatus, rejectionReason } = req.body;
-
-  if (!userId || !verificationStatus) {
-    return res.status(400).json({
-      success: false,
-      message: 'User ID and verification status are required',
-    });
-  }
-
-  if (verificationStatus === 'Rejected' && !rejectionReason) {
-    return res.status(400).json({
-      success: false,
-      message: 'Rejection reason is required for rejected KYC',
-    });
-  }
-
-  try {
-    const user = await User.findById(userId);
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'User not found',
-      });
-    }
-
-    user.kycVerified = verificationStatus === 'Verified';
-    user.profileStatus = verificationStatus === 'Verified' ? 'Active' : 'Suspended'; 
-    user.rejectionReason = verificationStatus === 'Rejected' ? rejectionReason : null;
-
-    await user.save();
-
-    return res.status(200).json({
-      success: true,
-      message: 'KYC verification updated successfully',
-      data: {
-        userId,
-        verificationStatus,
-        rejectionReason: verificationStatus === 'Rejected' ? rejectionReason : null,
-        verificationDate: new Date(),
-        profileStatus: user.profileStatus, 
-      },
-    });
-  } catch (error) {
-    return res.status(500).json({
-      success: false,
-      message: 'Error verifying KYC',
-      error: error.message,
-    });
-  }
-};
 
 const getKYCStatus = async (req, res) => {
   const { userId } = req.params;
@@ -147,7 +106,7 @@ const getKYCStatus = async (req, res) => {
 };
 
 module.exports = {
-  submitKYC,
-  verifyKYC,
+
+    VerifyKYC,
   getKYCStatus,
 };
