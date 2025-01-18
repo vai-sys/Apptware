@@ -155,10 +155,10 @@ const calculateCreditScore = async (req, res) => {
       { creditScore: finalScore }
     );
 
-    // Get rating and interest rate
+
     const { rating, baseInterestRate } = getCreditRatingAndRate(finalScore);
 
-    // Generate recommendations
+
     const recommendations = generateRecommendations(user, utilizationScore);
 
     const response = {
@@ -208,7 +208,7 @@ const applyForLoan = async (req, res) => {
         documents[key] = req.files[key][0].path;
       });
     }
-    // console.log(`http://localhost:3000/api/loan/calculate/${req.user._id}/`)
+
     let interestRate = 0;
     try {
       const user = await User.findById(req.user._id);
@@ -216,13 +216,12 @@ const applyForLoan = async (req, res) => {
         return res.status(404).json({ error: 'User not found' });
       }
   
-      // Calculate individual components
       const paymentBehaviorScore = await calculatePaymentBehaviorScore(user._id);
       const utilizationScore = calculateUtilizationScore(user.wallet);
       const profileScore = calculateProfileScore(user);
       const loanHistoryScore = await calculateLoanHistoryScore(user._id);
   
-      // Calculate final score
+   
       const baseScore = 300;
       const additionalScore = Math.floor(
         paymentBehaviorScore + 
@@ -232,28 +231,27 @@ const applyForLoan = async (req, res) => {
       ) / 850 * 550;
   
       const finalScore = Math.floor(baseScore + additionalScore);
-  
-      // Update credit score in all loans for the user
+ 
       await Loan.updateMany(
         { applicant: user._id },
         { creditScore: finalScore }
       );
   
-      // Get rating and interest rate
+    
       const { rating, baseInterestRate } = getCreditRatingAndRate(finalScore);
   
-      // Generate recommendations
+     
       const recommendations = generateRecommendations(user, utilizationScore);
-      // console.log(baseInterestRate)
+   
       interestRate = baseInterestRate
     }
     catch(err)
     {
       console.log(err);
     }
-    // Create new loan application
+   
     const loan = new Loan({
-      applicant: req.user._id, // Assuming you have user auth middleware
+      applicant: req.user._id, 
       loanAmount,
       loanCategory,
       term,
@@ -273,10 +271,10 @@ const applyForLoan = async (req, res) => {
         timestamp: new Date()
       }]
     });
-    // Save loan application
+
     await loan.save();
 
-    // Add notification for loan application
+   
     loan.notifications.push({
       message: 'Loan application submitted successfully',
       sentAt: new Date()
@@ -329,10 +327,59 @@ const getLoan = async (req, res) => {
 
 
 
+const getPendingLoans = async (req, res) => {
+  try {
+    const pendingLoans = await Loan.find({ status: 'pending' }).populate('applicant', 'name email'); 
+    res.status(200).json(pendingLoans);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
+const reviewLoan = async (req, res) => {
+  const { loanId } = req.params;
+  const { status, remark, approvedBy } = req.body;
+
+  try {
+  
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
+    }
+
+  
+    if (status === 'rejected' && (!remark || remark.trim() === '')) {
+      return res.status(400).json({ error: 'Remark is required when rejecting a loan.' });
+    }
+
+    const loan = await Loan.findById(loanId);
+    if (!loan) {
+      return res.status(404).json({ error: 'Loan not found.' });
+    }
+
+  
+    loan.status = status;
+    loan.approvalDetails = {
+      approvedBy,
+      approvalDate: new Date(),
+      comments: remark || '', 
+    };
+
+    await loan.save();
+
+    res.status(200).json({
+      message: `Loan proposal has been ${status}.`,
+      loan,
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 
 
 module.exports = {
-  calculateCreditScore,applyForLoan,getLoan
+  calculateCreditScore,applyForLoan,getLoan,getPendingLoans,reviewLoan
 };
 
 

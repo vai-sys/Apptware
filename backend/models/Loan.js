@@ -83,7 +83,7 @@ const LoanSchema = new mongoose.Schema({
     default: 'pending',
   },
   approvalDetails: {
-    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'Admin' },
+    approvedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     approvalDate: Date,
     comments: String,
   },
