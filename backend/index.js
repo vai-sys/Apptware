@@ -8,13 +8,14 @@ dotenv.config();
 const authRoute = require('./routes/authRoute');
 const kycRoute=require('./routes/kycRoute')
 const loanRoute=require('./routes/loanRoute')
+const loanFundingRoute=require("./routes/loanFundingRoute");
 
 const app = express();
 connectDB();
 
 const corsOptions = {
-  origin: 'http://localhost:5173',  // Allow requests from localhost:5173
-  credentials: true,               // Allow cookies and credentials to be included
+  origin: 'http://localhost:5173',  
+  credentials: true,              
 };
 app.use(cors(corsOptions));
 app.use(express.json());
@@ -24,6 +25,7 @@ const PORT = process.env.PORT || 5000;
 app.use('/api/auth', authRoute);
 app.use('/api/kyc',kycRoute);
 app.use('/api/loan',loanRoute)
+app.use('/api/investor',loanFundingRoute);
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {

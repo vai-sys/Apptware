@@ -1,6 +1,7 @@
 const axios = require("axios")
 const User = require('../models/User');
 const Loan = require('../models/Loan');
+const LoanFunding=require("../models/LoanFunding")
 
 
 const calculatePaymentBehaviorScore = async (userId) => {
@@ -337,44 +338,121 @@ const getPendingLoans = async (req, res) => {
 };
 
 
+// const reviewLoan = async (req, res) => {
+//   const { loanId } = req.params;
+//   const { status, remark, approvedBy } = req.body;
+
+//   try {
+  
+//     if (!['approved', 'rejected'].includes(status)) {
+//       return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
+//     }
+
+  
+//     if (status === 'rejected' && (!remark || remark.trim() === '')) {
+//       return res.status(400).json({ error: 'Remark is required when rejecting a loan.' });
+//     }
+
+//     const loan = await Loan.findById(loanId);
+//     if (!loan) {
+//       return res.status(404).json({ error: 'Loan not found.' });
+//     }
+
+  
+//     loan.status = status;
+//     loan.approvalDetails = {
+//       approvedBy,
+//       approvalDate: new Date(),
+//       comments: remark || '', 
+//     };
+
+//     await loan.save();
+
+//     res.status(200).json({
+//       message: `Loan proposal has been ${status}.`,
+//       loan,
+//     });
+//   } catch (error) {
+//     res.status(500).json({ error: error.message });
+//   }
+// };
+
+
+
+
 const reviewLoan = async (req, res) => {
   const { loanId } = req.params;
   const { status, remark, approvedBy } = req.body;
 
   try {
-  
+    // Validate the status input
     if (!['approved', 'rejected'].includes(status)) {
       return res.status(400).json({ error: 'Invalid status. Must be "approved" or "rejected".' });
     }
 
-  
     if (status === 'rejected' && (!remark || remark.trim() === '')) {
       return res.status(400).json({ error: 'Remark is required when rejecting a loan.' });
     }
 
+  
     const loan = await Loan.findById(loanId);
     if (!loan) {
       return res.status(404).json({ error: 'Loan not found.' });
     }
 
-  
+   
     loan.status = status;
     loan.approvalDetails = {
       approvedBy,
       approvalDate: new Date(),
-      comments: remark || '', 
+      comments: remark || '',
     };
 
     await loan.save();
 
+   
+    if (status === 'approved') {
+      const fundingDeadline = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); 
+      const loanFunding = new LoanFunding({
+        loanId: loan._id, 
+        interestRate: loan.interestRate, 
+        totalAmountNeeded: loan.loanAmount, 
+        fundingDeadline, 
+        totalAmountAllocated: 0,
+        status: 'open', 
+        statusHistory: [
+          { status: 'open', updatedAt: new Date() },
+        ],
+        notifications: [
+          {
+            message: `A new loan funding opportunity is available: Loan ID ${loan._id}`,
+          },
+        ],
+        auditTrail: [
+          {
+            action: 'Loan approved and funding process initiated',
+            performedBy: approvedBy,
+            timestamp: new Date(),
+          },
+        ],
+      });
+
+      await loanFunding.save();
+    }
+
+ 
     res.status(200).json({
       message: `Loan proposal has been ${status}.`,
       loan,
     });
   } catch (error) {
+
     res.status(500).json({ error: error.message });
   }
 };
+
+
+
 
 
 
