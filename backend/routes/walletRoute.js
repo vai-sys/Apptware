@@ -1,13 +1,14 @@
 const express = require('express');
 const router = express.Router();
+const User = require('../models/User'); 
 const { authenticate, requireKYC } = require('../middleware/authMiddleware');
-const { depositFunds } = require('../controllers/walletController'); 
+const { depositFunds,withdrawFromWallet,getWalletTransactions } = require('../controllers/walletController'); 
 const { body, validationResult } = require('express-validator'); 
 const mongoose = require('mongoose'); 
 
 
 router.post(
-  '/deposit',
+  '/deposit',authenticate, requireKYC,
   [
  
     body('userId').isMongoId().withMessage('Invalid user ID.'),
@@ -30,6 +31,14 @@ router.post(
     }
   }
 );
+
+
+
+
+
+router.post('/withdraw', withdrawFromWallet);
+
+router.get('/transactions/:userId', getWalletTransactions);
 
 module.exports = router;
 
