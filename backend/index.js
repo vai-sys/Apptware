@@ -9,6 +9,7 @@ const authRoute = require('./routes/authRoute');
 const kycRoute=require('./routes/kycRoute')
 const loanRoute=require('./routes/loanRoute')
 const loanFundingRoute=require("./routes/loanFundingRoute");
+const walletRoute=require("./routes/walletRoute");
 
 const app = express();
 connectDB();
@@ -26,6 +27,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/kyc',kycRoute);
 app.use('/api/loan',loanRoute)
 app.use('/api/investor',loanFundingRoute);
+app.use('/api/wallet',walletRoute);
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {

@@ -6,6 +6,6 @@ const {contributeToLoan} =require("../controllers/loanFundingControllers")
 
 
 router.get('/open-loans',authenticate,requireKYC, getOpenLoansForInvestors);
-router.post('/:loanId/invest',authenticate,requireKYC, contributeToLoan);
+// router.post('/:loanId/invest',authenticate,requireKYC, contributeToLoan);
 
 module.exports=router;
