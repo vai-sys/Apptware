@@ -201,7 +201,7 @@ const applyForLoan = async (req, res) => {
       disbursement
     } = req.body;
     
-    // Create document paths object from uploaded files
+   
     const documents = {};
     if (req.files) {
       Object.keys(req.files).forEach(key => {
@@ -301,12 +301,38 @@ const applyForLoan = async (req, res) => {
   }
 };
 
+const getLoan = async (req, res) => {
+  try {
+  
+    const data = await Loan.find();
+
+
+    console.log(data);
+
+
+    res.status(200).json({
+      success: true,
+      message: "Loans retrieved successfully",
+      data: data,
+    });
+  } catch (err) {
+
+    console.error("Error fetching loans:", err);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to retrieve loans",
+      error: err.message,
+    });
+  }
+};
+
 
 
 
 
 module.exports = {
-  calculateCreditScore,applyForLoan
+  calculateCreditScore,applyForLoan,getLoan
 };
 
 
