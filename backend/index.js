@@ -12,7 +12,11 @@ const loanRoute=require('./routes/loanRoute')
 const app = express();
 connectDB();
 
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:5173',  // Allow requests from localhost:5173
+  credentials: true,               // Allow cookies and credentials to be included
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 const PORT = process.env.PORT || 5000;

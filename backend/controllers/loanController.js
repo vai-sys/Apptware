@@ -198,9 +198,9 @@ const applyForLoan = async (req, res) => {
       purpose,
       panNumber,
       guarantor,
-      bankDetails
+      disbursement
     } = req.body;
-
+    
     // Create document paths object from uploaded files
     const documents = {};
     if (req.files) {
@@ -209,7 +209,7 @@ const applyForLoan = async (req, res) => {
       });
     }
     // console.log(`http://localhost:3000/api/loan/calculate/${req.user._id}/`)
-    const interestRate = 0;
+    let interestRate = 0;
     try {
       const user = await User.findById(req.user._id);
       if (!user) {
@@ -263,9 +263,9 @@ const applyForLoan = async (req, res) => {
       guarantor,
       interestRate,
       disbursement: {
-        accountNumber: bankDetails.accountNumber,
-        bankName: bankDetails.bankName,
-        ifscCode: bankDetails.ifscCode
+        accountNumber: disbursement.accountNumber,
+        bankName: disbursement.bankName,
+        ifscCode: disbursement.ifscCode
       },
       auditTrail: [{
         action: 'Loan Application Created',
@@ -283,12 +283,13 @@ const applyForLoan = async (req, res) => {
     });
 
     await loan.save();
-
+    
     res.status(201).json({
       success: true,
       message: 'Loan application submitted successfully',
       data: loan
     });
+    
 
   } catch (error) {
     console.error('Error in loan application:', error);
