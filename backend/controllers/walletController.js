@@ -19,7 +19,7 @@ const depositFunds = async (userId, amount, description) => {
   wallet.balance += amount;
 
   const transaction = {
-    transactionId: new mongoose.Types.ObjectId(), // Use `new` here
+    transactionId: new mongoose.Types.ObjectId(),
     type: 'deposit',
     amount,
     balanceAfterTransaction: wallet.balance,
