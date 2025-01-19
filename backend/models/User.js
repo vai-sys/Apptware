@@ -43,8 +43,12 @@ const userSchema = new mongoose.Schema(
       lastTransactionDate: { type: Date },
       transactions: [
         {
-          transactionId: { type: mongoose.Schema.Types.ObjectId, default: mongoose.Types.ObjectId }, 
-          type: { type: String, enum: ['deposit', 'withdrawal', 'loan_funding', 'loan_repayment', 'interest_payment', 'fee'], required: true },
+          transactionId: {
+            type: mongoose.Schema.Types.ObjectId,
+            default: () => new mongoose.Types.ObjectId(), // Generates unique ObjectId for each transaction
+          },
+          
+          type: { type: String, enum: ['loan_disbursement','deposit', 'withdrawal', 'loan_funding', 'loan_repayment', 'interest_payment', 'fee'], required: true },
           amount: { type: Number, required: true },
           balanceAfterTransaction: { type: Number }, 
           userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }, 
