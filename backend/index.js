@@ -13,7 +13,7 @@ const loanFundingRoute=require("./routes/loanFundingRoute");
 const walletRoute=require("./routes/walletRoute");
 
 
-const walletRoute=require("./routes/walletRoute")
+// const walletRoute=require("./routes/walletRoute")
 
 const portfolioRoute=require('./routes/portFolio')
 
