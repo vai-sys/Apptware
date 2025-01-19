@@ -9,7 +9,11 @@ const authRoute = require('./routes/authRoute');
 const kycRoute=require('./routes/kycRoute')
 const loanRoute=require('./routes/loanRoute')
 const loanFundingRoute=require("./routes/loanFundingRoute");
+
 const walletRoute=require("./routes/walletRoute");
+
+
+const walletRoute=require("./routes/walletRoute")
 
 const portfolioRoute=require('./routes/portFolio')
 
@@ -34,7 +38,10 @@ app.use('/api/investor',loanFundingRoute);
 app.use('/api/wallet',walletRoute);
 
 app.use('/api',portfolioRoute)
+<<<<<<< HEAD
 
+=======
+>>>>>>> bb76458b1def5a00ca623f1ec7b79e607c95076c
 app.use('/api', userRoutes);
 
 app.use('/uploads', express.static('uploads'));
