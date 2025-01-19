@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate, requireKYC } = require('../middleware/authMiddleware');
-const {getOpenLoansForInvestors}=require('../controllers/loanFundingControllers')
-const poolFunds = require('../controllers/loanFundingControllers')
+// const {getOpenLoansForInvestors}=require('../controllers/loanFundingControllers')
+const { poolFunds, getOpenLoansForInvestors } = require('../controllers/loanFundingControllers');
+
 
 router.post('/fund-loan', async (req, res) => {
+    
   const { loanId, investorId, amount } = req.body;
 
   try {

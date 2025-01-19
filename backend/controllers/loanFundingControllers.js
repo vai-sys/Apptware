@@ -1,7 +1,7 @@
 const Loan = require('../models/Loan');
 const LoanFunding = require('../models/LoanFunding');
 const User = require('../models/User');
-
+const mongoose = require("mongoose");
 
 const getOpenLoansForInvestors = async (req, res) => {
     try {
