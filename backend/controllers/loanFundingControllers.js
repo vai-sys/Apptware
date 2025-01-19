@@ -25,18 +25,14 @@ const getOpenLoansForInvestors = async (req, res) => {
 
   
   async function poolFunds(loanId, investorId, amount) {
-    const session = await mongoose.startSession();
-    session.startTransaction();
-  
     try {
-      
-      const loan = await Loan.findById(loanId).session(session);
+  
+      const loan = await Loan.findById(loanId);
       if (!loan || loan.status !== 'approved') {
         throw new Error('Loan is not approved or does not exist.');
       }
-  
-  
-      const loanFunding = await LoanFunding.findOne({ loanId }).session(session);
+
+      const loanFunding = await LoanFunding.findOne({ loanId });
       if (!loanFunding) {
         throw new Error('Loan funding record not found.');
       }
@@ -44,13 +40,12 @@ const getOpenLoansForInvestors = async (req, res) => {
         throw new Error('Loan is already fully funded.');
       }
   
-    
-      const investor = await User.findById(investorId).session(session);
+      const investor = await User.findById(investorId);
       if (!investor || investor.wallet.balance < amount) {
         throw new Error('Investor does not have sufficient balance.');
       }
   
- 
+   
       investor.wallet.balance -= amount;
       investor.wallet.totalInvested += amount;
       investor.wallet.transactions.push({
@@ -59,10 +54,10 @@ const getOpenLoansForInvestors = async (req, res) => {
         balanceAfterTransaction: investor.wallet.balance,
         userId: investorId,
       });
-      await investor.save({ session });
+      await investor.save();
   
-      
-      const borrower = await User.findById(loan.applicant).session(session);
+     
+      const borrower = await User.findById(loan.applicant);
       if (!borrower) {
         throw new Error('Borrower does not exist.');
       }
@@ -75,9 +70,9 @@ const getOpenLoansForInvestors = async (req, res) => {
         balanceAfterTransaction: borrower.wallet.balance,
         userId: investorId,
       });
-      await borrower.save({ session });
+      await borrower.save();
   
-  
+    
       loanFunding.totalAmountAllocated += amount;
       loanFunding.investors.push({
         investorId,
@@ -85,20 +80,17 @@ const getOpenLoansForInvestors = async (req, res) => {
         percentageContribution: (amount / loanFunding.totalAmountNeeded) * 100,
       });
   
+     
       if (loanFunding.totalAmountAllocated >= loanFunding.totalAmountNeeded) {
         loanFunding.status = 'fully-funded';
         loan.status = 'disbursed';
         loan.disbursement = {
           date: new Date(),
         };
-        await loan.save({ session });
+        await loan.save();
       }
   
-      await loanFunding.save({ session });
-  
-  
-      await session.commitTransaction();
-      session.endSession();
+      await loanFunding.save();
   
       return {
         success: true,
@@ -106,9 +98,7 @@ const getOpenLoansForInvestors = async (req, res) => {
         loanFunding,
       };
     } catch (error) {
-  
-      await session.abortTransaction();
-      session.endSession();
+      console.error('Error pooling funds:', error);
       throw error;
     }
   }
