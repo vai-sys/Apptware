@@ -9,13 +9,11 @@ const authRoute = require('./routes/authRoute');
 const kycRoute=require('./routes/kycRoute')
 const loanRoute=require('./routes/loanRoute')
 const loanFundingRoute=require("./routes/loanFundingRoute");
-const walletRoute=require("./routes/walletRoute");
-<<<<<<< HEAD
+const walletRoute=require("./routes/walletRoute")
 const portfolioRoute=require('./routes/portFolio')
 
-=======
 const userRoutes = require('./routes/userRoutes');
->>>>>>> 34bc8d7e61ea33b97f265547549568a6217c1baa
+
 const app = express();
 connectDB();
 
@@ -33,11 +31,10 @@ app.use('/api/kyc',kycRoute);
 app.use('/api/loan',loanRoute)
 app.use('/api/investor',loanFundingRoute);
 app.use('/api/wallet',walletRoute);
-<<<<<<< HEAD
+
 app.use('/api',portfolioRoute)
-=======
 app.use('/api', userRoutes);
->>>>>>> 34bc8d7e61ea33b97f265547549568a6217c1baa
+
 app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {

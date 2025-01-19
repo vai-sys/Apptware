@@ -1,9 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const User = require('../models/User'); 
-const Loan = require('../models/Loan'); 
-const LoanFunding = require('../models/LoanFunding'); 
-const { ObjectId } = mongoose.Types; // Importing ObjectId from mongoose.Types
+const User = require('../models/User');
+const Loan = require('../models/Loan');
+const LoanFunding = require('../models/LoanFunding');
 
 const router = express.Router();
 
@@ -11,6 +10,12 @@ router.get('/:userId/portfolio', async (req, res) => {
   try {
     const userId = req.params.userId;
 
+    // Validate userId as a valid ObjectId
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+
+    // Find user
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -19,7 +24,7 @@ router.get('/:userId/portfolio', async (req, res) => {
     // Calculate total investment by the user
     const totalInvestment = await LoanFunding.aggregate([
       { $unwind: '$investors' },
-      { $match: { 'investors.investorId': new mongoose.Types.ObjectId(userId) } }, // Corrected here
+      { $match: { 'investors.investorId': new mongoose.Types.ObjectId(userId) } },
       {
         $group: {
           _id: null,
@@ -31,7 +36,7 @@ router.get('/:userId/portfolio', async (req, res) => {
     // Calculate total returns earned by the user
     const totalReturns = await LoanFunding.aggregate([
       { $unwind: '$investmentReturns' },
-      { $match: { 'investmentReturns.investorId': new mongoose.Types.ObjectId(userId) } }, // Corrected here
+      { $match: { 'investmentReturns.investorId': new mongoose.Types.ObjectId(userId) } },
       {
         $group: {
           _id: null,
@@ -40,17 +45,17 @@ router.get('/:userId/portfolio', async (req, res) => {
       },
     ]);
 
-    // Fetch active loans for the user (those the user has applied for or funded)
+    // Fetch active loans for the user
     const activeLoans = await Loan.find({
       $or: [
-        { applicant: new mongoose.Types.ObjectId(userId), status: { $in: ['pending', 'approved'] } }, // Corrected here
-        { 'loanFunding.investors.investorId': new mongoose.Types.ObjectId(userId), status: { $in: ['pending', 'approved'] } }, // Corrected here
+        { applicant: new mongoose.Types.ObjectId(userId), status: { $in: ['pending', 'approved'] } },
+        { 'loanFunding.investors.investorId': new mongoose.Types.ObjectId(userId), status: { $in: ['pending', 'approved'] } },
       ],
     });
 
     // Calculate average interest rate for all loans of the user
     const averageInterestRate = await Loan.aggregate([
-      { $match: { applicant: new mongoose.Types.ObjectId(userId) } }, // Corrected here
+      { $match: { applicant: new mongoose.Types.ObjectId(userId) } },
       {
         $group: {
           _id: null,
@@ -62,8 +67,8 @@ router.get('/:userId/portfolio', async (req, res) => {
     // Fetch all loan proposals (user can be an applicant or investor)
     const loanProposals = await Loan.find({
       $or: [
-        { applicant: new mongoose.Types.ObjectId(userId) }, // Corrected here
-        { 'loanFunding.investors.investorId': new mongoose.Types.ObjectId(userId) }, // Corrected here
+        { applicant: new mongoose.Types.ObjectId(userId) },
+        { 'loanFunding.investors.investorId': new mongoose.Types.ObjectId(userId) },
       ],
     });
 
