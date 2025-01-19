@@ -43,6 +43,7 @@ const LoanSchema = new mongoose.Schema({
       message: 'Invalid PAN number format',
     },
   },
+
   creditScore: {
     type: Number,
     min: 300,

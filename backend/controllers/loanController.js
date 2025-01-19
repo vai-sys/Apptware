@@ -199,7 +199,8 @@ const applyForLoan = async (req, res) => {
       purpose,
       panNumber,
       guarantor,
-      disbursement
+      disbursement,
+
     } = req.body;
     
    
@@ -260,6 +261,7 @@ const applyForLoan = async (req, res) => {
       panNumber,
       documents,
       guarantor,
+   
       interestRate,
       disbursement: {
         accountNumber: disbursement.accountNumber,
