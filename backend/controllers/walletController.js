@@ -90,7 +90,7 @@ const withdrawFromWallet = async (req, res) => {
   try {
     const { userId } = req.params;
 
-    // Fetch the user and their transactions
+
     const user = await User.findById(userId).select('wallet.transactions wallet.balance');
     if (!user) {
       return res.status(404).json({ status: 'error', message: 'User not found' });
